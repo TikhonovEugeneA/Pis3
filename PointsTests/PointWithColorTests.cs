@@ -83,5 +83,4 @@ namespace PointsTests
             Assert.AreEqual(point.Item1, null);
         }
     }
-
 }
