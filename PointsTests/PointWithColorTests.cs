@@ -43,7 +43,7 @@ namespace PointsTests
             Program.PointWithWeight pointWithColor = new Program.PointWithWeight(point, weight);
 
             //assert
-            ReferenceEquals(pointWithColor, "111;111 -10");
+            ReferenceEquals(pointWithColor, "111; 111 -10");
         }
 
         [TestMethod]
