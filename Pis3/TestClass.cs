@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pis3
 {
-    public class TestClass
+    public static class TestClass
     {
         public static int CountZeroes(string input)
         {

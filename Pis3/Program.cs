@@ -13,9 +13,9 @@ namespace Pis3
         {
             try
             {
-                string[] lines = File.ReadAllLines(@"C:\Users\Evgeniy\Desktop\Pis3\Points.txt").Where(s=>s.Trim()!=string.Empty).ToArray(); //помещаем в массив те строки, которые не являются пустыми
-                //string[] lines = new string[] { "\"PointWithColor\" 111;111 \"Blue\"", "\"PointWithColor\" 222;222 \"Red-Black\"", "\"PointWithWeight\" 222;222 -20", "\"PointWithSpeed\" 333;333 -30" };
-                List<Figure> figures = new List<Figure>(); //список всех объектов
+                string file = @"C:\Users\Evgeniy\Desktop\Pis3\Points.txt";
+                string[] lines = File.ReadAllLines(file).Where(s=>s.Trim()!=string.Empty).ToArray(); //помещаем в массив те строки, которые не являются пустыми
+                List<AbstractPoint> figures = new List<AbstractPoint>(); //список всех объектов
 
                 PointWithColor pointWithColor = new PointWithColor((0,0),"");
                 PointWithWeight pointWithWeight = new PointWithWeight((0,0),0);
@@ -23,7 +23,7 @@ namespace Pis3
 
                 if (lines.Length == 0)
                 {
-                    throw new Exception("Файл пустой");
+                    throw new ArgumentNullException(file);
                 }
 
                 foreach (string line in lines)
@@ -49,13 +49,13 @@ namespace Pis3
                             }
                         default:
                             {
-                                throw new Exception("Нет такого типа");
+                                throw new ArgumentException("Нет такого типа");
                             }
                     }
                 }
                 foreach(var figure in figures)
                 {
-                    figure.Print();
+                    Console.WriteLine(figure.Print());
                 }
             }
             catch (Exception ex)
@@ -64,51 +64,60 @@ namespace Pis3
                     $"\nТрассировка стека вызовов: {ex.StackTrace}");
             }
         }
-        public abstract class Figure
+        //interface IValidateParsing
+        //{
+
+        //} 
+        public abstract class AbstractPoint
         {
-            public abstract void Print();
-            public abstract Figure Parsing(string message);
+            public (double, double) CoordinatesPoint { get; set; }
+            public virtual string Print()
+            {
+                return $"Координатами: {CoordinatesPoint}";
+            }
+            public abstract AbstractPoint Parsing(string message);
         }
-        public class PointWithColor : Figure
+        public class PointWithColor : AbstractPoint
         {
-            public (double, double) coordinatesPoint;
-            public string color;
+            readonly Type myType = typeof(PointWithColor);
+
+            private readonly string color;
+
             public PointWithColor((double, double) _coordinatesPoint, string _color)
             {
-                coordinatesPoint = _coordinatesPoint;
+                CoordinatesPoint = _coordinatesPoint;
                 color = _color;
             }
-            public override void Print()
+
+            public override string Print()
             {
-                Type myType = typeof(PointWithColor);
-                Console.WriteLine($"Тип: {myType.Name}, Координаты: {coordinatesPoint}, Цвет: {color}");
+                return $"Тип: {myType.Name}, " + base.Print() + $", Цвет: {color}";
             }
-            public override Figure Parsing(string line)
+
+            public override AbstractPoint Parsing(string message)
             {
                 try
                 {
-                    string[] partCount = line.Split(' ');
-                    string partType = partCount[0]; //Получение типа
+                    string[] partCount = message.Split(' ');
+                    string partType = partCount[0]; 
                     if (partType == null)
                     {
-                        throw new Exception("Нет типа");
+                        throw new ArgumentNullException(partType);
                     }
 
                     if (partCount[1] == string.Empty)
                     {
-                        throw new Exception("Нет координат");
+                        throw new ArgumentNullException(partCount[1]);
                     }
 
                     if (partCount[2] == string.Empty)
                     {
-                        throw new Exception("Нет цвета");
+                        throw new ArgumentNullException(partCount[2]);
                     }
 
-                    string[] partCoordinats = partCount[1].ToString().Split(';'); //Получение координат и разбитие по точке с запятой
+                    string[] partCoordinats = partCount[1].ToString().Split(';');
                     (double, double) _coordinatsPoint = (double.Parse(partCoordinats[0]), double.Parse(partCoordinats[1]));
-                    double _x = double.Parse(partCoordinats[0]);
-                    double _y = double.Parse(partCoordinats[1]);
-                    string _color = partCount[2]; //Получение цвета
+                    string _color = partCount[2];
                     return new PointWithColor(_coordinatsPoint, _color);
 
                 }
@@ -119,30 +128,26 @@ namespace Pis3
                 return null;
             }
         }
-        public class PointWithWeight : Figure
+        public class PointWithWeight : AbstractPoint
         {
-            public (double, double) coordinatesPoint;
-            public double weight;
+            private readonly double weight;  
+            readonly Type myType = typeof(PointWithWeight);
             public PointWithWeight((double, double) _coordinatesPoint, double _weight)
             {
-                //if (_weight == null)
-                //{
-                //    throw new Exception("Вес не может быть отрицательным, но это не правда");
-                //}
                 if (!double.TryParse(_weight.ToString(), out double __weight))
                 {
-                    throw new Exception("Вес имеет неверный формат");
+                    throw new ArgumentException("Вес имеет неверный формат");
                 }
 
-                coordinatesPoint = _coordinatesPoint;
-                weight = _weight;
+                CoordinatesPoint = _coordinatesPoint;
+                weight = __weight;
             }
-            public override Figure Parsing(string line)
+            public override AbstractPoint Parsing(string message)
             {
                 try
                 {
-                    string[] partCount = line.Split(' ');
-                    string partType = partCount[0]; //Получение типа
+                    string[] partCount = message.Split(' ');
+                    string partType = partCount[0];
                     if (partType == null)
                     {
                         throw new Exception("Нет типа");
@@ -155,11 +160,9 @@ namespace Pis3
                     {
                         throw new Exception("Нет веса");
                     }
-                    string[] partCoordinats = partCount[1].ToString().Split(';'); //Получение координат и разбитие по точке с запятой
+                    string[] partCoordinats = partCount[1].ToString().Split(';');
                     (double, double) _coordinatsPoint = (double.Parse(partCoordinats[0]), double.Parse(partCoordinats[1]));
-                    double _x = double.Parse(partCoordinats[0]);
-                    double _y = double.Parse(partCoordinats[1]);
-                    double _weight = Convert.ToDouble(partCount[2]); //Получение веса
+                    double _weight = Convert.ToDouble(partCount[2]);
                     return new PointWithWeight(_coordinatsPoint, _weight);   
                 }
                 catch (Exception ex)
@@ -168,31 +171,30 @@ namespace Pis3
                 }
                 return null;
             }
-            public override void Print()
+            public override string Print()
             {
-                Type myType = typeof(PointWithWeight);
-                Console.WriteLine($"Тип: {myType.Name}, Координаты: {coordinatesPoint}, Вес: {weight}");
+                return $"Тип: {myType.Name}, " + base.Print() + $", Вес: {weight}";
             }
         }
-        public class PointWithSpeed : Figure
+        public class PointWithSpeed : AbstractPoint
         {
-            public (double, double) coordinatesPoint;
-            public double speed;
+            private readonly double speed;
+            readonly Type myType = typeof(PointWithSpeed);
             public PointWithSpeed((double, double) _coordinatesPoint, double _speed)
             {
-                if (!double.TryParse(_speed.ToString(), out double __speed))
+                if (!double.TryParse(_speed.ToString(),out double __speed))
                 {
-                    throw new Exception("Скорость имеет неверный формат");
+                    throw new ArgumentException("Скорость имеет неверный формат");
                 }
-                coordinatesPoint = _coordinatesPoint;
-                speed = __speed;
+                speed = __speed; 
+                CoordinatesPoint=_coordinatesPoint;
             }
-            public override Figure Parsing(string line)
+            public override AbstractPoint Parsing(string message)
             {
                 try
                 {
-                    string[] partCount = line.Split(' ');
-                    string partType = partCount[0]; //Получение типа
+                    string[] partCount = message.Split(' ');
+                    string partType = partCount[0];
                     if (partType == null)
                     {
                         throw new Exception("Нет типа");
@@ -207,11 +209,9 @@ namespace Pis3
                     {
                          throw new Exception("Нет скорости");
                     }
-                    string[] partCoordinats = partCount[1].ToString().Split(';'); //Получение координат и разбитие по точке с запятой
+                    string[] partCoordinats = partCount[1].ToString().Split(';');
                     (double, double) _coordinatsPoint = (double.Parse(partCoordinats[0]), double.Parse(partCoordinats[1]));
-                    double _x = double.Parse(partCoordinats[0]);
-                    double _y = double.Parse(partCoordinats[1]);
-                    double _speed = Convert.ToDouble(partCount[2]); //Получение cкорости
+                    double _speed = Convert.ToDouble(partCount[2]);
                     return new PointWithSpeed(_coordinatsPoint, _speed);
 
                 }
@@ -221,10 +221,9 @@ namespace Pis3
                 }
                 return null;
             }
-            public override void Print()
+            public override string Print()
             {
-                Type myType = typeof(PointWithSpeed);
-                Console.WriteLine($"Тип: {myType.Name}, Координаты: {coordinatesPoint}, Скорость: {speed}");
+                return $"Тип: {myType.Name}, " + base.Print() + $", Скорость: {speed}";
             }
         }
     }
