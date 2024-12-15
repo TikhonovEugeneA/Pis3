@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Pis3;
+using System;
 
 namespace PointsTests
 {
@@ -11,7 +11,7 @@ namespace PointsTests
         public void CountZeroes_WithNoZeroes()
         {
             string input = "1";
-            int expected = 0;   
+            int expected = 0;
             int actual = TestClass.CountZeroes(input);
             Assert.AreEqual(expected, actual);
         }
@@ -27,7 +27,7 @@ namespace PointsTests
         public void CountZeroes_InvalidInputThrowsException()
         {
             string input = null;
-            Assert.ThrowsException<ArgumentNullException>(()=> TestClass.CountZeroes(input));
+            Assert.ThrowsException<ArgumentNullException>(() => TestClass.CountZeroes(input));
         }
         [TestMethod]
         public void FindZeros()
@@ -35,13 +35,13 @@ namespace PointsTests
             //arrange 
             string input = "000110000111";
             int countZeros = 3;
-           
-            
+
+
             //act
             LengthNull lengthNull = new LengthNull();
-            
+
             //assert
-            Assert.AreEqual(countZeros, lengthNull.CounterZeros(input,'1'));
+            Assert.AreEqual(countZeros, lengthNull.CounterZeros(input, '1'));
 
         }
     }
