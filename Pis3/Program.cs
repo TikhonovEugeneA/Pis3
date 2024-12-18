@@ -88,6 +88,12 @@ namespace Pis3
                 return $"Тип: {myType.Name}, " + base.Print() + $", Цвет: {color}";
             }
 
+            /// <summary>Parsings the specified message.</summary>
+            /// <param name="message">The message.</param>
+            /// <returns>
+            ///   <br />
+            /// </returns>
+            /// <exception cref="System.ArgumentNullException"></exception>
             public override AbstractPoint Parsing(string message)
             {
                 try

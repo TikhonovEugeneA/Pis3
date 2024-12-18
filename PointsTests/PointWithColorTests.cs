@@ -130,5 +130,15 @@ namespace PointsTests
                 Assert.AreEqual(point.Item1, null);
             }
         }
+
+        [TestClass]
+        public class AbstractPointTests
+        {
+            [TestMethod]
+            public void AbstractPoint_MethodPrintTests()
+            {
+
+            }
+        }
     }
 }
